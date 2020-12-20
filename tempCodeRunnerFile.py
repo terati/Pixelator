@@ -1,0 +1,2 @@
+self):
+    #     print(self.TCse
