@@ -176,25 +176,96 @@ class Window(QMainWindow):
     #             print("Trigger")
 
     def createRightPalleteDock(self):
-        self.PDock = QDockWidget("Pallete Chooser", self)
+        self.PDock = QDockWidget("", self)
         self.PDock.setStyleSheet("""
             QDockWidget {
                 color: white;
                 font-size: 12pt;
                 font-family: Courier;
             }
-            
-
         """)
         self.PDock.setAllowedAreas(Qt.RightDockWidgetArea)
 
         self.listWidget = QListWidget()
         self.PDock.setWidget(self.listWidget)
-        # self.PDock.setFeatures(QtWidgets.QDockWidget.NoDockWidgetFeatures)
-
-      
         self.PDock.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
         self.addDockWidget(Qt.RightDockWidgetArea, self.PDock)
+
+
+        self.PDtabs = QTabWidget()
+        self.tab1 = QWidget()
+        self.PDtabs.addTab(self.tab1,"Pallete")
+        self.tab2 = QWidget()
+        self.PDtabs.addTab(self.tab2,"TMP")
+        self.PDock.setLayout(QVBoxLayout())
+        self.PDock.layout().addWidget(self.PDtabs)
+        
+        self.tab1.layout = QVBoxLayout()
+        self.tab1.setLayout(self.tab1.layout)
+        self.tab1.layout.setAlignment(Qt.AlignTop)
+
+        # self.p_scene = PGraphicsSceneEdit()
+
+
+        # self.p_label = QLabel()
+        # p_canvas = QPixmap(250,200)
+        # self.p_label.setPixmap(p_canvas)
+        # p = QPainter(self.p_label.pixmap())
+        # # p = QPainter(self)
+        # self.radius = 100.
+        # for i in range(self.width()):
+        #     for j in range(self.height()):
+        #         color = QColor(255, 255, 255, 255)
+        #         h = (np.arctan2(i-self.radius, j-self.radius)+np.pi)/(2.*np.pi)
+        #         s = np.sqrt(np.power(i-self.radius, 2)+np.power(j-self.radius, 2))/self.radius
+        #         v = 1.0
+        #         if s < 1.0 and s > 0.5:
+        #             var = round(1**(s))
+        #             color.setHsvF(h, s, v, 1)
+        #         else:
+        #             color.setHsv(210, 44.4, 17.6, 0)
+        #         p.setPen(color)
+        #         p.drawPoint(i, j)
+        # p.setBrush(QColor(255, 255, 255, 255))
+        # p.drawRect(70, 70, 60, 60)
+        # p.drawRect(190, 0, 30, 30)
+        # self.p_scene.addWidget(self.p_label)
+
+        # self.p_view = QGraphicsView(self)
+        # self.p_view.setScene(self.p_scene)
+        # self.tab1.layout.addWidget(self.p_view)
+        
+        self.cc = ColorCircle()
+        self.tab1.layout.addWidget(self.cc)
+
+        self.slide = QSlider(Qt.Horizontal)
+        self.slide.setStyleSheet("""
+            QSlider {
+                height: 40px;
+                min-width: 100px;
+                max-width: 220px;
+            }
+            QSlider::groove:horizontal{
+                height: 5px;
+                background: qlineargradient(x1:0, x2:1, stop:0 white, stop:1 black);
+            }
+            QSlider::sub-page:horizontal {
+                background: transparent
+            }
+            QSlider::handle:horizontal {
+                background: blue;
+                width: 10px;
+                border: 10px;
+                margin-top: -5px;
+                margin-bottom: -5px;
+                border-radius: 10px;
+            }
+        """)
+        self.tab1.layout.addWidget(self.slide)
+        
+        self.slide2 = QSlider(Qt.Horizontal)
+        self.tab1.layout.addWidget(self.slide2)
+        
 
     def createBottomPalleteDock(self):
         self.BoPDock = QDockWidget("Holder", self)
@@ -250,6 +321,203 @@ class Window(QMainWindow):
     #             print("Trigger")
             
         
+import numpy as np
+class ColorCircle(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.radius = 100.
+        self.setFixedSize(250, 250)
+        self.tmp = QColor(255, 255, 255, 255)
+        self.flag = 0 
+        self.p = QPainter(self)
+        self.pixmap = QPixmap('palette.png')
+        self.r = 255
+        self.g = 255
+        self.b = 255
+        self.old_r = 255
+        self.old_g = 255
+        self.old_b = 255
+        self.m_r = 255
+        self.m_g = 255
+        self.m_b = 255
+        self.m_x = 255
+        self.m_y = 255
+
+        self.r1 = 255
+        self.g1 = 0
+        self.b1 = 0
+        self.r2 = 0
+        self.g2 = 255
+        self.b2 = 0
+        self.r3 = 0
+        self.g3 = 0
+        self.b3 = 255
+
+        self.tmpp_r = 0
+        self.tmpp_g = 0
+        self.tmpp_b = 0
+    def paintEvent(self, ev):
+        super().paintEvent(ev)
+
+        # self.p_label = QLabel()
+        # p_canvas = QPixmap(250,200)
+        # self.p_label.setPixmap(p_canvas)
+
+        # p = QPainter(self.p_label.pixmap())
+        self.p.begin(self)
+        self.p.drawPixmap(QPoint(0,0), self.pixmap, QRect(0,0,250,200))
+
+        # if self.flag == 0:
+        #     for i in range(self.width()):
+        #         for j in range(self.height()):
+        #             color = QColor(255, 255, 255, 255)
+        #             h = (np.arctan2(i-self.radius, j-self.radius)+np.pi)/(2.*np.pi)
+        #             s = np.sqrt(np.power(i-self.radius, 2)+np.power(j-self.radius, 2))/self.radius
+        #             v = 1.0
+        #             if s < 1.0 and s > 0.5:
+        #                 var = round(1**(s))
+        #                 color.setHsvF(h, s, v, 1)
+        #             else:
+        #                 color.setHsv(210, 44.4, 17.6, 0)
+        #             self.p.setPen(color)
+        #             self.p.drawPoint(i, j)
+        #     # self.p.save()
+        #     self.flag = 1
+            
+      
+      
+        
+
+        self.tp = QColor(self.r, self.g, self.b, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawRect(70, 70, 60, 60) #Center square
+        self.tp = QColor(self.old_r, self.old_g, self.old_b, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(190, 0, 30, 30) #Right corner square
+
+
+        self.tp = QColor(self.r1, self.g1, self.b1, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(5, 180, 30, 30) #Swatch1
+        self.tp = QColor(self.r2, self.g2, self.b2, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(42, 205, 30, 30) #Swatch2
+        self.tp = QColor(self.r3, self.g3, self.b3, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(90, 210, 30, 30) #Swatch3
+
+
+        self.tp = QColor(255, 255, 255, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(self.m_x-23, self.m_y-2, 25, 25)
+        self.tp = QColor(self.m_r, self.m_g, self.m_b, 255)
+        self.p.setBrush(self.tp)
+        self.p.drawEllipse(self.m_x-20, self.m_y, 20, 20)
+        self.p.end()
+        
+        # p.setBrush(QColor(255, 255, 255, 255))
+    def mousePressEvent(self, event):
+        self.pr_x = event.x()
+        self.pr_y = event.y()
+        if ( (self.pr_x - 190 - 15)**2 + (self.pr_y - 15)**2 <= 15**2 ): #Top-right
+            # print("signal")
+            self.tmpp_r = self.r
+            self.tmpp_g = self.g
+            self.tmpp_b = self.b
+            self.r = self.old_r
+            self.g = self.old_g
+            self.b = self.old_b
+            self.old_r = self.tmpp_r
+            self.old_g = self.tmpp_g
+            self.old_b = self.tmpp_b
+        if event.buttons() == Qt.LeftButton and ( (self.pr_x - 5 - 15)**2 + (self.pr_y - 180 - 15)**2 <= 15**2 ): #Swatch 1
+            self.r1 = self.r
+            self.g1 = self.g
+            self.b1 = self.b
+        if event.buttons() == Qt.RightButton and ( (self.pr_x - 5 - 15)**2 + (self.pr_y - 180 - 15)**2 <= 15**2 ): 
+            self.r = self.r1 
+            self.g = self.g1
+            self.b = self.b1
+        if event.buttons() == Qt.LeftButton and ( (self.pr_x - 42 - 15)**2 + (self.pr_y - 205 - 15)**2 <= 15**2 ): #Swatch 2
+            self.r2 = self.r
+            self.g2 = self.g
+            self.b2 = self.b
+        if event.buttons() == Qt.RightButton and ( (self.pr_x - 42 - 15)**2 + (self.pr_y - 205 - 15)**2 <= 15**2 ):
+            self.r = self.r2
+            self.g = self.g2
+            self.b = self.b2
+        if event.buttons() == Qt.LeftButton and ( (self.pr_x - 90 - 15)**2 + (self.pr_y - 210 - 15)**2 <= 15**2 ): #Swatch 3
+            self.r3 = self.r
+            self.g3 = self.g
+            self.b3 = self.b
+        if event.buttons() == Qt.RightButton and ( (self.pr_x - 90 - 15)**2 + (self.pr_y - 210 - 15)**2 <= 15**2 ): 
+            self.r = self.r3 
+            self.g = self.g3
+            self.b = self.b3
+        self.update()
+        
+    
+    def mouseReleaseEvent(self, event):
+        self.setCursor(Qt.ArrowCursor)
+        self.p_x = event.x()
+        self.p_y = event.y()
+        self.old_r = self.r
+        self.old_g = self.g
+        self.old_b = self.b
+        p_h = (np.arctan2(self.p_x-self.radius, self.p_y-self.radius)+np.pi)/(2.*np.pi)
+        p_s = np.sqrt(np.power(self.p_x-self.radius, 2)+np.power(self.p_y-self.radius, 2))/self.radius
+        p_v = 1.0
+        self.tmp = QColor(255, 255, 255, 255)
+        if p_s < 1.0 and p_s > 0.5:
+            var = round(1**(p_s))
+            self.tmp.setHsvF(p_h, p_s, p_v, 1)
+            self.tmp = self.tmp.getRgb()
+            self.r = self.tmp[0]
+            self.g = self.tmp[1]
+            self.b = self.tmp[2]
+        self.update()
+        
+    def mouseMoveEvent(self, event):
+        self.setCursor(Qt.BlankCursor)
+        self.old_mx = self.m_x
+        self.old_my = self.m_y
+        self.m_x = event.x()
+        self.m_y = event.y()
+        m_h = (np.arctan2(self.m_x-self.radius, self.m_y-self.radius)+np.pi)/(2.*np.pi)
+        m_s = np.sqrt(np.power(self.m_x-self.radius, 2)+np.power(self.m_y-self.radius, 2))/self.radius
+        m_v = 1.0
+        self.tpp = QColor(255, 255, 255, 255)
+        if m_s < 1.0 and m_s > 0.5:
+            # var = round(1**(m_s))
+            self.tpp.setHsvF(m_h, m_s, m_v, 1)
+            self.tpp = self.tpp.getRgb()
+            self.m_r = self.tpp[0]
+            self.m_g = self.tpp[1]
+            self.m_b = self.tpp[2]
+        else:
+            self.m_x = self.old_mx
+            self.m_y = self.old_my
+        
+        self.update()
+        
+
+
+
+class PGraphicsSceneEdit(QGraphicsScene):
+    def __init__(self):
+        super().__init__()
+        # self.PTabself = PTabself
+        # self.cc = ColorCircle()
+
+    def mousePressEvent(self, event):
+        self.scene_POS = event.scenePos()
+        print(self.scene_POS)
+
+    def mouseMoveEvent(self, event):
+        pass
+        # print(event.scenePos())
+
 
 # main method 
 if __name__ == "__main__": 
