@@ -1,6 +1,7 @@
 from Signal_Gen import *
 from Tab import *
 from External_Windows import *
+import config
 import qdarkstyle
 
 from PyQt5.QtCore import QDateTime, Qt, QTimer
@@ -20,7 +21,9 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os
   
-
+Red = 255
+Green = 255
+Blue = 255
 # creating class fo winow 
 class Window(QMainWindow): 
     def __init__(self): 
@@ -239,6 +242,9 @@ class Window(QMainWindow):
         self.tab1.layout.addWidget(self.cc)
 
         self.slide = QSlider(Qt.Horizontal)
+        self.slide.setValue(50)
+        self.slide.valueChanged.connect(self.slider_callback)
+        
         self.slide.setStyleSheet("""
             QSlider {
                 height: 40px;
@@ -265,7 +271,13 @@ class Window(QMainWindow):
         
         self.slide2 = QSlider(Qt.Horizontal)
         self.tab1.layout.addWidget(self.slide2)
-        
+
+    def slider_callback(self, val):
+        config.slider1 = val # ranges from 0-100
+        if config.slider1 > 50:    
+            config.factor = (config.slider1 - 50)*40 + 100
+        if config.slider1 < 50:
+            config.factor = (50 - config.slider1)*40 + 100
 
     def createBottomPalleteDock(self):
         self.BoPDock = QDockWidget("Holder", self)
@@ -390,6 +402,10 @@ class ColorCircle(QWidget):
         
 
         self.tp = QColor(self.r, self.g, self.b, 255)
+        if config.slider1 > 50:
+            self.tp = self.tp.darker(config.factor)
+        if config.slider1 < 50:
+            self.tp = self.tp.lighter(config.factor)
         self.p.setBrush(self.tp)
         self.p.drawRect(70, 70, 60, 60) #Center square
         self.tp = QColor(self.old_r, self.old_g, self.old_b, 255)
@@ -455,6 +471,10 @@ class ColorCircle(QWidget):
             self.r = self.r3 
             self.g = self.g3
             self.b = self.b3
+        
+        config.red = self.r
+        config.green = self.g
+        config.blue = self.b
         self.update()
         
     
@@ -476,6 +496,9 @@ class ColorCircle(QWidget):
             self.r = self.tmp[0]
             self.g = self.tmp[1]
             self.b = self.tmp[2]
+        config.red = self.r
+        config.green = self.g
+        config.blue = self.b
         self.update()
         
     def mouseMoveEvent(self, event):
@@ -498,6 +521,9 @@ class ColorCircle(QWidget):
         else:
             self.m_x = self.old_mx
             self.m_y = self.old_my
+        config.red = self.r
+        config.green = self.g
+        config.blue = self.b
         
         self.update()
         

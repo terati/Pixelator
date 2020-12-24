@@ -8,6 +8,9 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.QtCore import * 
+import math
+
+import config
 
 class TabManager(QWidget):
     def __init__(self, Wself):
@@ -57,21 +60,42 @@ class TabManager(QWidget):
 
         self.scene = QGraphicsSceneEdit(self)
 
-        self.pixmap = QPixmap("Images/brush.png")
-        self.scene.addPixmap(self.pixmap)
-        self.scene.setSceneRect(0,0,100,100)
+        # self.pixmap = QPixmap("Images/brush.png")
+        # self.scene.addPixmap(self.pixmap)
+
+        self.scene.setSceneRect(0,0,10,10)
         # self.text1 = self.scene.addText("Hello, World").setPos(250,250)
   
-        pen = QPen(Qt.black, 0.1, Qt.DashDotLine, Qt.SquareCap, Qt.BevelJoin)
+        pen = QPen(Qt.transparent, 0, Qt.DotLine, Qt.SquareCap, Qt.BevelJoin)
         side = 1
-        for i in range(2):
-            for j in range(2):
-                r = QRectF(QPointF(i*side, j*side), QSizeF(side, side))
-                self.scene.addRect(r, pen)
+        
+        x = Qt.darkGray
+        y = Qt.lightGray
+        flag = 0
+        for i in range(10):
+            for j in range(10):
+                r = QRectF(QPointF(j*side, i*side), QSizeF(side, side))
+                if flag == 1:
+                    self.scene.addRect(r, pen).setBrush(QBrush(x))
+                    flag = 0
+                else:
+                    self.scene.addRect(r, pen).setBrush(QBrush(y))
+                    flag = 1
+            if flag == 0:
+                flag = 1
+            else:
+                flag = 0
+        pen = QPen(Qt.black, 0.1, Qt.DotLine, Qt.SquareCap, Qt.BevelJoin)
+        side = 1 
+        for i in range(11):
+            self.scene.addLine(i*side, 0, i*side, 10, pen).setZValue(1) #Vertical Lines
+            self.scene.addLine(0, i*side, 10, i*side, pen).setZValue(1) #Horizontal Lines
+        
+
         self.view = QGraphicsView(self)
         self.view.setBackgroundBrush(QBrush(QColor(40, 40, 50, 230), Qt.SolidPattern))
         self.view.setScene(self.scene)
-        self.zoom_num = 1
+        self.zoom_num = 50
         self.view.scale(self.zoom_num,self.zoom_num)
         self.tbtmp.layout.addWidget(self.view)        
         self.tbtmp.setLayout(self.tbtmp.layout)
@@ -82,8 +106,8 @@ class TabManager(QWidget):
 
         self.scene.clearSelection
         # self.scene.setSceneRect(self.scene.itemsBoundingRect())
-        self.scene.setSceneRect(0, 0, 100, 100) #self.scene.sceneRect().size().toSize()
-        self.image = QImage(100, 100, QImage.Format_ARGB32)
+        self.scene.setSceneRect(0, 0, 10, 10) #self.scene.sceneRect().size().toSize()
+        self.image = QImage(10, 10, QImage.Format_ARGB32)
         # print(self.scene.sceneRect().size().toSize())
         self.image.fill(Qt.transparent)
 
@@ -144,22 +168,39 @@ class QGraphicsSceneEdit(QGraphicsScene):
             self.Tabself.zoom_num = 2
             self.Tabself.view.scale(self.Tabself.zoom_num,self.Tabself.zoom_num)
         # print(event.scenePos())
-        
 
-        # self.Tabself.view.update()
-        # self.drawing = True
-        # self.Tabself.tbtmp.update()
-
-        # self.last_point = event.scenePos()
-            # print("zoom in")
-        # self.Tabself.view.scale(self.Tabself.zoom_num,self.Tabself.zoom_num)
-
-        # self.Tabself.tbtmp.layout.addWidget(self.Tabself.view)
-        # self.Tabself.tbtmp.setLayout(self.Tabself.tbtmp.layout)
-
-        # print( self.Tabself.Wself.zoomin.isChecked() )
-        # print( self.Tabself.Wself.zoomout.isChecked() )
-        # print( self.Tabself.zoom_num )
+        if event.buttons() == Qt.LeftButton and self.Tabself.Wself.brush.isChecked(): #and self.drawing:
+            
+            self.label = QLabel()
+            self.label.setStyleSheet("""
+                QLabel {
+                    padding: 0px;
+                }
+            """)
+            self.label.setAttribute(Qt.WA_TranslucentBackground)
+            canvas = QPixmap(10, 10)
+            canvas.fill(Qt.transparent)
+            
+            
+            # painter = QPainter(self.label.pixmap())
+            painter = QPainter(canvas)
+            pen = QPen()
+            pen.setWidth(1)
+            # print(config.red)
+            ctmp = QColor(config.red, config.green, config.blue)
+            # ctmp = ctmp.darker()
+            pen.setColor(ctmp)
+            painter.setPen(pen)
+            painter.drawPoint(event.scenePos().x(), event.scenePos().y())
+            # print(event.scenePos().x())
+            painter.end()
+            self.label.setPixmap(canvas)
+            self.Tabself.scene.addWidget(self.label)
+            self.Tabself.view.setScene(self.Tabself.scene)
+            self.last_point = event.scenePos()
+            # print(event.scenePos())
+            self.update()
+        self.last_point = event.scenePos()
         
         
     def mouseMoveEvent(self, event):
@@ -174,7 +215,7 @@ class QGraphicsSceneEdit(QGraphicsScene):
                 }
             """)
             self.label.setAttribute(Qt.WA_TranslucentBackground)
-            canvas = QPixmap(100, 100)
+            canvas = QPixmap(10, 10)
             canvas.fill(Qt.transparent)
             
             
@@ -182,7 +223,7 @@ class QGraphicsSceneEdit(QGraphicsScene):
             painter = QPainter(canvas)
             pen = QPen()
             pen.setWidth(1)
-            pen.setColor(QColor('red'))
+            pen.setColor(QColor(config.red, config.green, config.blue))
             painter.setPen(pen)
             painter.drawLine(self.last_point, event.scenePos())
             painter.end()
